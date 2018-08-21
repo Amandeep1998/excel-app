@@ -1,0 +1,17 @@
+<% include _layouts/header %>
+<div class="jumbotron text-center">
+  <h4>Upload .csv File</h4>
+  <br>
+  <form id="target" action="/" method="post" enctype="multipart/form-data">
+    <input id="file" type="file" name="myFile"> <br>
+  </form>
+</div>
+<% include _layouts/footer %>
+
+<script type="text/javascript">
+  $(function() {
+    $('#file').change(function() {
+    $('#target').submit();
+  });
+  })
+</script>

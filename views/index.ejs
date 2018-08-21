@@ -1,0 +1,82 @@
+<% include _layouts/header %>
+<h5 class="text-center">Excel Sheet</h5>
+<table class="table table-striped table-small table-bordered">
+  <% var row = 0; %>
+  <% var col = 0; %>
+  <% arr.forEach(function(item) { %>
+  <tr>
+    <% item.forEach(function(nItem) { %>
+      <td><input class="form-control" type="text" value="<%=nItem%>"></td>
+      <% if(row == 0) { %>
+        <% col++; %>
+      <% } %>
+    <% })%>
+  </tr>
+  <% row++; %>
+  <% }) %>
+</table>
+<a style="float:left" href="/" class="btn btn-primary">Back to upload</a>
+<button style="float:right" id="save" class="btn btn-success">Save</button>
+<input type="hidden" id="row" value="<%=row%>">
+<input type="hidden" id="col" value="<%=col%>">
+<div id="chartContainer" style="float:right; height: 300px; width: 100%;"></div>
+
+<% include _layouts/footer %>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+<script type="text/javascript">
+$(function() {
+  var row  = $('#row').val();
+  var col  = $('#col').val();
+  var count = 0;
+  $('button#save').click(function(e) {
+    e.preventDefault();
+    var arr =[];
+    $('table td input').each(function(j, el) {
+      arr.push($(this).val());
+    })
+    var finalArr = [];
+    for(var i = 0; i < col; i++) {
+      var newArr = arr.slice(0, col);
+      finalArr.push(newArr);
+      arr.splice(0, col);
+    }
+
+    $.ajax({
+      url: '/save',
+      type: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify({finalArr: finalArr}),
+      success: function( data, textStatus, jQxhr ){
+        console.log('success');
+        alert('Data Saved');
+      },
+      error: function( jqXhr, textStatus, errorThrown ){
+        console.log( errorThrown );
+      }
+    })
+    count++;
+    var changedData = [
+          { label: "data",  y: count},
+        ];
+    //Better to construct options first and then pass it as a parameter
+    var options = {
+      title: {
+        text: "Excel Bar Graph"
+      },
+        axisY:{
+        title : "Number of times data changed",
+         interval: 1
+       },
+      data: [
+      {
+        type: "column",
+        dataPoints: changedData
+      }
+      ]
+    };
+
+    $("#chartContainer").CanvasJSChart(options);
+  });
+});
+</script>
